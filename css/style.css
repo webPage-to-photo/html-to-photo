@@ -1,10 +1,3 @@
-/* ==================== 全局重置 ==================== */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
 /* ==================== 全局变量 ==================== */
 :root {
     /* 深色主题 (默认) - 优化后的深灰色系 */
@@ -34,6 +27,10 @@
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+    /* 布局尺寸变量 */
+    --header-height: 72px;
+    --footer-height: 80px;
 }
 
 [data-theme="light"] {
@@ -52,29 +49,41 @@
 }
 
 /* ==================== 全局样式 ==================== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
     background-color: var(--bg-primary);
     color: var(--text-primary);
-    min-height: 100vh;
+    /* 核心变更：锁定全屏高度 */
+    height: 100vh;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .container {
-    max-width: 1600px;
+    max-width: 1800px;
     margin: 0 auto;
     padding: 0 24px;
     width: 100%;
 }
 
-/* ==================== 顶部导航栏 ==================== */
+/* ==================== 顶部导航栏 (Fixed Header) ==================== */
 .header {
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border-color);
-    padding: 16px 0;
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
     box-shadow: var(--shadow-sm);
+    z-index: 10;
     transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
@@ -82,6 +91,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    height: 100%;
 }
 
 .logo {
@@ -135,21 +145,29 @@ body {
     background: var(--bg-card);
 }
 
-/* ==================== 主内容区 ==================== */
+/* ==================== 主内容区 (Main Scrollable) ==================== */
 .main-content {
     flex: 1;
-    padding: 32px 0;
+    /* 占满中间所有空间 */
+    overflow: hidden;
+    /* 禁止溢出 */
+    padding: 24px 0;
+    position: relative;
+    min-height: 0;
+    /* Flexbox 嵌套滚动的关键 */
+}
+
+.main-content .container {
+    height: 100%;
 }
 
 .layout-grid {
     display: grid;
     grid-template-columns: 450px 1fr;
-    /* 固定左侧宽度，右侧自适应 */
+    /* 左侧固定，右侧自适应 */
     gap: 24px;
-    margin-bottom: 32px;
-    height: calc(100vh - 200px);
-    /* 视口高度自适应 */
-    min-height: 600px;
+    height: 100%;
+    /* 撑满 main-content */
 }
 
 .section-header {
@@ -157,6 +175,9 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 12px;
+    height: 32px;
+    /* 固定头部高度 */
+    flex-shrink: 0;
 }
 
 .section-header h2 {
@@ -173,26 +194,29 @@ body {
     color: var(--text-hint);
 }
 
-/* ==================== 代码输入区 ==================== */
+/* ==================== 左侧：代码输入区 ==================== */
 .input-section {
     display: flex;
     flex-direction: column;
     height: 100%;
+    overflow: hidden;
 }
 
 .code-input {
     flex: 1;
     width: 100%;
+    height: 100%;
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 16px;
     font-family: 'JetBrains Mono', 'Consolas', monospace;
-    /* 更适合代码的字体 */
     font-size: 13px;
     color: var(--text-primary);
     resize: none;
-    /* 禁止手动调整大小，自适应父容器 */
+    /* 禁止手动调整大小 */
+    overflow-y: auto;
+    /* 内部独立滚动 */
     line-height: 1.5;
     box-shadow: var(--shadow-sm);
     transition: border-color 0.2s, background-color 0.3s;
@@ -204,34 +228,32 @@ body {
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
-/* ==================== 预览区 ==================== */
+/* ==================== 右侧：预览区 ==================== */
 .preview-section {
     display: flex;
     flex-direction: column;
     height: 100%;
+    overflow: hidden;
     position: relative;
 }
 
 .preview-container {
     flex: 1;
     background: var(--preview-bg);
-    /* 深色背景区分 */
     border: 1px solid var(--border-color);
     border-radius: 12px;
     overflow: hidden;
-    /* 隐藏溢出，内部滚动 */
     box-shadow: var(--shadow-sm);
     position: relative;
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
 }
 
+/* 视口：处理滚动的区域 */
 .preview-viewport {
     width: 100%;
     height: 100%;
     overflow: auto;
-    /* 允许滚动 */
+    /* 内部独立滚动 */
     padding: 40px;
     display: flex;
     flex-direction: column;
@@ -239,15 +261,16 @@ body {
     gap: 20px;
 }
 
-/* 缩放内容包裹器 */
+/* 缩放包裹层 */
 .zoom-wrapper {
     transform-origin: top center;
     transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     display: flex;
     flex-direction: column;
     gap: 20px;
-    /* 避免缩放时模糊 */
     will-change: transform;
+    /* 确保内容能被撑开 */
+    min-width: min-content;
 }
 
 /* 缩放控制器 */
@@ -256,7 +279,6 @@ body {
     bottom: 24px;
     right: 24px;
     background: rgba(39, 39, 42, 0.8);
-    /* 半透明背景 */
     backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
@@ -266,11 +288,10 @@ body {
     gap: 4px;
     box-shadow: var(--shadow-lg);
     z-index: 10;
-    transition: opacity 0.2s;
 }
 
 [data-theme="light"] .zoom-controls {
-    background: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.85);
     border-color: rgba(0, 0, 0, 0.1);
 }
 
@@ -308,148 +329,163 @@ body {
     justify-content: center;
     height: 100%;
     color: var(--text-hint);
+    width: 100%;
 }
 
-/* ==================== 操作按钮 ==================== */
+/* ==================== 底部操作栏 (Fixed Footer) ==================== */
+.footer {
+    height: var(--footer-height);
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    flex-shrink: 0;
+    z-index: 20;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    /* 更明显的阴影 */
+    display: flex;
+    align-items: center;
+}
+
+.footer .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+}
+
+/* 左侧进度条 */
+.progress-container {
+    flex: 1;
+    max-width: 300px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg-primary);
+    padding: 0 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.progress-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--bg-card);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--accent-green);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* 右侧操作按钮 */
 .actions {
     display: flex;
     gap: 12px;
     align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
 }
 
 .btn {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 12px 24px;
-    font-size: 15px;
-    font-weight: 500;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
     border: none;
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s ease;
     box-shadow: var(--shadow-sm);
+    white-space: nowrap;
+    height: 40px;
 }
 
 .btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    filter: grayscale(1);
 }
 
-.btn-primary {
-    background: linear-gradient(135deg, var(--accent-blue) 0%, #0284c7 100%);
-    color: white;
+.btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+    filter: brightness(1.1);
 }
 
-.btn-primary:hover:not(:disabled) {
-    background: linear-gradient(135deg, var(--accent-blue-hover) 0%, #0369a1 100%);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+.btn:active:not(:disabled) {
+    transform: translateY(0);
 }
 
-.btn-secondary {
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
-}
-
-.btn-secondary:hover {
-    background: #3d3d3d;
-    transform: translateY(-2px);
-}
-
-/* ==================== 进度条 ==================== */
-.progress-container {
-    width: 100%;
-    max-width: 400px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.progress-bar {
-    width: 100%;
-    height: 8px;
-    background: var(--bg-card);
-    border-radius: 4px;
-    overflow: hidden;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.progress-fill {
-    width: 0%;
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
-    transition: width 0.3s ease;
-}
-
-.progress-text {
-    font-size: 14px;
-    color: var(--text-secondary);
-    text-align: center;
-}
-
-/* ==================== 底部说明 ==================== */
-.footer {
-    background: var(--bg-secondary);
-    border-top: 1px solid var(--border-color);
-    padding: 24px 0;
-    margin-top: auto;
-}
-
-.footer p {
-    font-size: 14px;
-    color: var(--text-secondary);
-    line-height: 1.8;
-    margin-bottom: 8px;
-}
-
-.footer code {
-    background: var(--bg-card);
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-family: 'Consolas', monospace;
-    color: var(--accent-blue);
-}
-
-/* ==================== 响应式设计 ==================== */
-@media (max-width: 1024px) {
-    .layout-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .code-input,
-    .preview-area {
-        height: 400px;
-    }
-}
-
+/* ==================== 移动端适配 (Fluid Fallback) ==================== */
 @media (max-width: 768px) {
-    .header .container {
+    body {
+        height: auto;
+        overflow: auto;
+        /* 恢复全局滚动 */
+        padding-bottom: 80px;
+        /* 为固定底部留出空间 */
+    }
+
+    .main-content {
+        overflow: visible;
+        padding-bottom: 0;
+    }
+
+    .layout-grid {
+        display: flex;
         flex-direction: column;
+        height: auto;
+    }
+
+    .input-section {
+        height: 500px;
+    }
+
+    .preview-section {
+        height: 600px;
+        /* 给预览区固定高度 */
+    }
+
+    .footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 12px 0;
+        height: auto;
+    }
+
+    .footer .container {
+        flex-direction: column-reverse;
+        /* 进度条在按钮上方 */
         gap: 12px;
     }
 
-    .section-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-    }
-
     .actions {
-        flex-direction: column;
         width: 100%;
+        justify-content: space-between;
     }
 
     .btn {
-        width: 100%;
+        flex: 1;
         justify-content: center;
+        padding: 10px;
+        font-size: 13px;
     }
 
-    .code-input,
-    .preview-area {
-        height: 300px;
+    .progress-container {
+        width: 100%;
+        max-width: none;
     }
 }
