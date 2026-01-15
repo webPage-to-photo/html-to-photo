@@ -127,6 +127,29 @@ body {
     color: var(--text-primary);
 }
 
+.lang-toggle {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s;
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+}
+
+.lang-toggle:hover {
+    color: var(--text-primary);
+    border-color: var(--text-secondary);
+    background: var(--bg-card);
+}
+
 .github-link {
     display: flex;
     align-items: center;
